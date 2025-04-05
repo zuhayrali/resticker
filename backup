@@ -88,12 +88,71 @@ if [ $rc -ne 0 ]; then
 fi
 
 case "$result" in
-success)
-  echo Backup successful;;
-incomplete)
-  echo Backup incomplete;;
-failure)
-  echo Backup failed;;
+    success)
+        echo Backup successful
+        
+        # Define the JSON payload for success notification using environment variables
+        JSON_PAYLOAD=$(cat <<EOF
+{
+    "message": "${BACKUP_SUCCESS_MESSAGE}",
+    "number": "${NOTIFICATION_NUMBER}",
+    "recipients": [
+        "${NOTIFICATION_NUMBER}"
+    ]
+}
+EOF
+)
+
+        # Send the notification using curl
+        curl -X POST \
+             -H "Content-Type: application/json" \
+             "${NOTIFICATION_URL}" \
+             -d "$JSON_PAYLOAD"
+    ;;
+    incomplete)
+        echo Backup incomplete
+        
+        # Define the JSON payload for incomplete notification using environment variables
+        INCOMPLETE_MESSAGE="Backup was incomplete."
+        JSON_PAYLOAD=$(cat <<EOF
+{
+    "message": "${INCOMPLETE_MESSAGE}",
+    "number": "${NOTIFICATION_NUMBER}",
+    "recipients": [
+        "${NOTIFICATION_NUMBER}"
+    ]
+}
+EOF
+)
+
+        # Send the notification using curl
+        curl -X POST \
+             -H "Content-Type: application/json" \
+             "${NOTIFICATION_URL}" \
+             -d "$JSON_PAYLOAD"
+    ;;
+    failure)
+        echo Backup failed with error code $rc
+        
+        # Define the JSON payload for failure notification using environment variables
+        FAILURE_MESSAGE="Backup failed with error code $rc."
+        JSON_PAYLOAD=$(cat <<EOF
+{
+    "message": "${FAILURE_MESSAGE}",
+    "number": "${NOTIFICATION_NUMBER}",
+    "recipients": [
+        "${NOTIFICATION_NUMBER}"
+    ]
+}
+EOF
+)
+
+        # Send the notification using curl
+        curl -X POST \
+             -H "Content-Type: application/json" \
+             "${NOTIFICATION_URL:-http://192.168.13.191:9922/v2/send}" \
+             -d "$JSON_PAYLOAD"
+    ;;
 esac
 
 if [ -n "${RESTIC_FORGET_ARGS}" ]; then
