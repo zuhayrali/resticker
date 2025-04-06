@@ -29,7 +29,7 @@ main() {
   # Create JSON payload for the notification
   JSON_PAYLOAD=$(cat <<EOF
 {
-    "message": "${BACKUP_SUCCESS_MESSAGE}",
+    "message": "${CHECK_SUCCESS_MESSAGE}",
     "number": "${NOTIFICATION_NUMBER}",
     "recipients": [
         "${NOTIFICATION_NUMBER}"
